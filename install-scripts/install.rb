@@ -9,7 +9,7 @@ require "tmpdir"
 HOME = Pathname.new(Dir.home)
 REPO = Pathname.new(__dir__).parent
 SKIP_DIRS = ["scripts", ".git", "__pycache__"]
-SYSTEM_PACKAGES = ["keyd"]
+SYSTEM_PACKAGES = ["chromium", "keyd"]
 
 def timestamp
   Time.now.strftime("%Y%m%d-%H%M%S")
