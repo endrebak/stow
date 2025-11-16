@@ -9,6 +9,7 @@ require "tmpdir"
 HOME = Pathname.new(Dir.home)
 REPO = Pathname.new(__dir__).parent
 SKIP_DIRS = ["scripts", ".git", "__pycache__"]
+SYSTEM_PACKAGES = ["keyd"]
 
 def timestamp
   Time.now.strftime("%Y%m%d-%H%M%S")
@@ -66,6 +67,24 @@ def stow_packages
   end
 end
 
+def stow_system_packages
+  SYSTEM_PACKAGES.each do |entry|
+    pkg = REPO / entry
+    next unless pkg.directory?
+
+    puts "Stowing system package #{entry}/ → /"
+    sh("sudo stow -v -t / #{entry}")
+  end
+end
+
+def install_keyd
+  # Check if keyd is already installed
+  return if system("pacman -Qi keyd > /dev/null 2>&1")
+
+  puts "Installing keyd with pacman (Arch/Omarchy)…"
+  sh("sudo pacman -S --needed --noconfirm keyd")
+end
+
 def install_keyd_sudoers
   sudoers_body = "%wheel ALL=(ALL) NOPASSWD: /usr/bin/systemctl start keyd, /usr/bin/systemctl stop keyd\n"
 
@@ -81,13 +100,22 @@ def install_keyd_sudoers
   end
 end
 
+def ensure_keyd_disabled
+  puts "Ensuring keyd is disabled and stopped (off by default)…"
+  # Idempotent: calling this repeatedly is fine.
+  sh("sudo systemctl disable --now keyd")
+end
+
 def main
   puts "Repo root: #{REPO}"
   ensure_stow
   backup_existing_configs
   install_dropbox
+  install_keyd
   stow_packages
+  stow_system_packages
   install_keyd_sudoers
+  ensure_keyd_disabled
 end
 
 main
