@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-sudo pacman -S libyaml
+sudo pacman -S --needed --noconfirm libyaml
 
 if ! mise which ruby >/dev/null 2>&1; then
   echo "Installing Ruby via mise..."

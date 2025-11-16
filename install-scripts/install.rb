@@ -4,12 +4,11 @@
 require "fileutils"
 require "pathname"
 require "time"
+require "tmpdir"
 
 HOME = Pathname.new(Dir.home)
 REPO = Pathname.new(__dir__).parent
 SKIP_DIRS = ["scripts", ".git", "__pycache__"]
-
-INSTALL_DROPBOX = true  # flip to false if you don't want that part
 
 def timestamp
   Time.now.strftime("%Y%m%d-%H%M%S")
@@ -35,8 +34,7 @@ def ensure_stow
   sh("sudo pacman -S --needed --noconfirm stow")
 end
 
-def maybe_install_dropbox
-  return unless INSTALL_DROPBOX
+def install_dropbox
   return if system("command -v dropbox > /dev/null")
 
   puts "Installing Dropbox with pacman (Arch/Omarchy)…"
@@ -68,13 +66,28 @@ def stow_packages
   end
 end
 
+def install_keyd_sudoers
+  sudoers_body = "%wheel ALL=(ALL) NOPASSWD: /usr/bin/systemctl start keyd, /usr/bin/systemctl stop keyd\n"
+
+  Dir.mktmpdir("keyd-toggle") do |dir|
+    tmp = Pathname.new(dir) / "keyd-toggle"
+    tmp.write(sudoers_body)
+    # local perms; sudo install will enforce mode again
+    File.chmod(0o440, tmp.to_s)
+
+    puts "Installing /etc/sudoers.d/keyd-toggle (will prompt for sudo if needed)…"
+    # This is effectively idempotent: re-running just overwrites with the same content.
+    sh("sudo install -m 440 #{tmp} /etc/sudoers.d/keyd-toggle")
+  end
+end
+
 def main
   puts "Repo root: #{REPO}"
   ensure_stow
   backup_existing_configs
-  maybe_install_dropbox
+  install_dropbox
   stow_packages
+  install_keyd_sudoers
 end
 
 main
-

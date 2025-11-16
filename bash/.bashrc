@@ -5,9 +5,15 @@
 # (don't mess with these directly, just overwrite them here!)
 source ~/.local/share/omarchy/default/bash/rc
 
+# Add local user bin if missing
+if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+    PATH="$HOME/.local/bin:$PATH"
+fi
+export PATH
+
 # Add your own exports, aliases, and functions here.
 #
 # Make an alias for invoking commands you use constantly
 # alias p='python'
 
-  alias ls='eza -lh --group-directories-first --icons=auto -a'
+alias ls='eza -lh --group-directories-first --icons=auto -a'
