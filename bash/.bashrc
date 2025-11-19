@@ -17,3 +17,4 @@ export PATH
 # alias p='python'
 
 alias ls='eza -lh --group-directories-first --icons=auto -a'
+alias fd='fd --hidden'
