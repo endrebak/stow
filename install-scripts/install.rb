@@ -106,11 +106,47 @@ def ensure_keyd_disabled
   sh("sudo systemctl disable --now keyd")
 end
 
+def install_yazi
+  return if system("command -v yazi > /dev/null 2>&1")
+
+  puts "Installing yazi with pacman (Arch/Omarchy)…"
+  sh("sudo pacman -S --needed --noconfirm yazi")
+end
+
+def install_yazi_deps
+  deps = %w[
+    7zip
+    chafa
+    fd
+    ffmpeg
+    fzf
+    imagemagick
+    jq
+    poppler
+    resvg
+    ripgrep
+    wl-clipboard
+    xclip
+    xsel
+    zoxide
+  ]
+
+  # Check if all dependencies are already installed
+  missing = deps.reject { |pkg| system("pacman -Qi #{pkg} > /dev/null 2>&1") }
+
+  return puts("All Yazi dependencies already installed.") if missing.empty?
+
+  puts "Installing Yazi dependencies: #{missing.join(', ')}"
+  sh("sudo pacman -S --needed --noconfirm #{missing.join(' ')}")
+end
+
 def main
   puts "Repo root: #{REPO}"
   ensure_stow
   backup_existing_configs
   install_dropbox
+  install_yazi
+  install_yazi_deps
   install_keyd
   stow_packages
   stow_system_packages
