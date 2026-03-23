@@ -32,11 +32,6 @@
       "active": "󱓻"
     },
     "persistent-workspaces": {
-      "1": [],
-      "2": [],
-      "3": [],
-      "4": [],
-      "5": []
     }
   },
   "custom/omarchy": {
@@ -61,7 +56,7 @@
     "on-click-right": "alacritty"
   },
   "clock": {
-    "format": "{:L%A %H:%M}",
+    "format": "{:L%A %H:%M %d %B W%V %Y}",
     "format-alt": "{:L%d %B W%V %Y}",
     "tooltip": false,
     "on-click-right": "omarchy-launch-floating-terminal-with-presentation omarchy-tz-select"
