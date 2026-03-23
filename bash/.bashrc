@@ -19,4 +19,3 @@ export PATH
 alias ls='eza -lh --group-directories-first --icons=auto -a'
 alias fd='fd --hidden'
 
-. "$HOME/.local/share/../bin/env"
