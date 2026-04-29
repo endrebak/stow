@@ -15,8 +15,17 @@ def timestamp
   Time.now.strftime("%Y%m%d-%H%M%S")
 end
 
+def managed_by_repo?(path)
+  return false unless path.exist? || path.symlink?
+
+  path.realpath.to_s.start_with?("#{REPO.realpath}/")
+rescue Errno::ENOENT
+  false
+end
+
 def backup(path)
   return unless path.exist? || path.symlink?
+  return if managed_by_repo?(path)
 
   backup_path = Pathname.new("#{path}.bak-#{timestamp}")
   puts "Backing up #{path} -> #{backup_path}"
@@ -42,9 +51,25 @@ def install_dropbox
   sh("sudo pacman -S --needed --noconfirm dropbox")
 end
 
+def install_git_delta
+  return if system("command -v delta > /dev/null 2>&1")
+
+  puts "Installing git-delta with pacman (Arch/Omarchy)…"
+  sh("sudo pacman -S --needed --noconfirm git-delta")
+end
+
+def install_difftastic
+  return if system("command -v difft > /dev/null 2>&1")
+
+  puts "Installing difftastic with pacman (Arch/Omarchy)…"
+  sh("sudo pacman -S --needed --noconfirm difftastic")
+end
+
 def backup_existing_configs
   backup(HOME / ".bashrc")
   backup(HOME / ".bash_profile")
+  backup(HOME / ".config" / "git" / "config")
+  backup(HOME / ".config" / "waybar" / "config.jsonc")
 
   hypr_dir = HOME / ".config" / "hypr"
   FileUtils.mkdir_p(hypr_dir)
@@ -144,6 +169,8 @@ def main
   puts "Repo root: #{REPO}"
   ensure_stow
   backup_existing_configs
+  install_git_delta
+  install_difftastic
   install_dropbox
   install_yazi
   install_yazi_deps

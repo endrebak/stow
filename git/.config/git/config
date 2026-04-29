@@ -1,0 +1,13 @@
+[core]
+	pager = delta
+
+[delta]
+	line-numbers = true
+	navigate = true
+
+[alias]
+	ddiff = -c diff.external=difft diff
+	dshow = -c diff.external=difft show --ext-diff
+[user]
+	email = endre.bakkenstovner@arm.com
+	name = Endre Bakken Stovner
